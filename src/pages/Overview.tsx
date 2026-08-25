@@ -2,18 +2,11 @@ import React, { useMemo, useState, useEffect } from 'react'
 import type { Lead, LLMSession } from '../types'
 import { StatCard } from '../components/ui/StatCard'
 import { LeadCard } from '../components/leads/LeadCard'
-import { ActivityFeed } from '../components/albert/ActivityFeed'
-import { supabase } from '../lib/supabase'
-import {
-    Users,
-    MessageSquare,
-    CalendarCheck,
-    TrendingUp,
-    DollarSign,
-    Zap,
-    Cpu,
-    Activity
-} from 'lucide-react'
+import { ActivityFeed } from '../components/agent/ActivityFeed'
+import { supabase, isDemoMode } from '../lib/supabase'
+
+import { MOCK_LEADS, MOCK_SESSIONS } from '../lib/mockData'
+import { Icon } from '@iconify/react'
 
 import { SkeletonCard } from '../components/ui/SkeletonCard'
 import { LeadDetail } from '../components/leads/LeadDetail'
@@ -23,11 +16,19 @@ interface OverviewProps {
     isLoading?: boolean
 }
 
-const Overview: React.FC<OverviewProps> = ({ leads, isLoading }) => {
+const Overview: React.FC<OverviewProps> = ({ leads: propLeads, isLoading: propLoading }) => {
     const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
     const [sessions, setSessions] = useState<LLMSession[]>([])
 
+    const leads = isDemoMode ? MOCK_LEADS : propLeads
+    const isLoading = isDemoMode ? false : propLoading
+
     useEffect(() => {
+        if (isDemoMode) {
+            setSessions(MOCK_SESSIONS)
+            return
+        }
+
         const fetchSessions = async () => {
             const { data } = await supabase.from('llm_sessions').select('*').order('created_at', { ascending: false })
             if (data) setSessions(data)
@@ -58,19 +59,19 @@ const Overview: React.FC<OverviewProps> = ({ leads, isLoading }) => {
             : 0
 
         return [
-            { label: 'Total Leads', value: total, icon: Users, color: 'text-blue-400' },
-            { label: 'Active Now', value: active, icon: MessageSquare, color: 'text-amber-400', pulse: active > 0 },
-            { label: 'Meetings Booked', value: booked, icon: CalendarCheck, color: 'text-accent' },
-            { label: 'Conv. Rate', value: `${rate}%`, icon: TrendingUp, color: 'text-rose-400' },
-            { label: 'AI Cost', value: `$${totalCost.toFixed(3)}`, icon: DollarSign, color: 'text-emerald-400' },
-            { label: 'AI Latency', value: `${avgLatency}ms`, icon: Zap, color: 'text-purple-400' },
+            { label: 'Total Leads', value: total, icon: 'solar:users-group-rounded-linear', color: 'bg-brand-muted text-brand' },
+            { label: 'Active Now', value: active, icon: 'solar:chat-round-dots-linear', color: 'bg-amber-50 text-amber-600', pulse: active > 0 },
+            { label: 'Meetings Booked', value: booked, icon: 'solar:calendar-mark-linear', color: 'bg-emerald-50 text-emerald-600' },
+            { label: 'Conv. Rate', value: `${rate}%`, icon: 'solar:chart-square-linear', color: 'bg-violet-50 text-violet-600' },
+            { label: 'AI Cost', value: `$${totalCost.toFixed(3)}`, icon: 'solar:dollar-minimalistic-linear', color: 'bg-sky-50 text-sky-600' },
+            { label: 'AI Latency', value: `${avgLatency}ms`, icon: 'solar:bolt-linear', color: 'bg-rose-50 text-rose-600' },
         ]
     }, [leads, sessions])
 
     const selectedLead = useMemo(() => leads.find(l => l.id === selectedLeadId), [leads, selectedLeadId])
 
     return (
-        <div className="p-8 space-y-12 animate-fade-up max-w-[1700px] mx-auto">
+        <div className="p-8 space-y-12 animate-fade-up max-w-[1750px] mx-auto">
             {/* Header Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {isLoading
@@ -93,12 +94,12 @@ const Overview: React.FC<OverviewProps> = ({ leads, isLoading }) => {
                 {/* Left: Lead Sidebar */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="flex items-center justify-between px-2">
-                        <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted flex items-center gap-2.5">
-                            <Activity size={14} className="text-accent" /> Live Registry
+                        <h2 className="text-sm font-semibold tracking-tight text-ink inline-flex items-center gap-2.5 bg-white border border-border rounded-xl px-4 py-2 shadow-card">
+                            <Icon icon="solar:graph-new-up-linear" width={18} className="text-brand" /> Live Registry
                         </h2>
-                        <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(46,255,161,0.5)]"></div>
-                            <span className="text-[10px] font-black text-accent uppercase tracking-widest">Active</span>
+                        <div className="flex items-center gap-2 bg-white border border-border rounded-xl px-4 py-2 shadow-card">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span className="text-xs font-medium text-ink-muted">Active</span>
                         </div>
                     </div>
                     <div className="space-y-4 max-h-[800px] overflow-y-auto pr-3 custom-scrollbar">
@@ -112,13 +113,13 @@ const Overview: React.FC<OverviewProps> = ({ leads, isLoading }) => {
                                     onClick={() => setSelectedLeadId(lead.id)}
                                     variant="compact"
                                 />
-                            ))
+                                ))
                         }
                     </div>
                 </div>
 
                 {/* Right: Detailed View or Intelligence Placeholder */}
-                <div className="lg:col-span-3 h-[850px] glass-card !rounded-[48px] border-white/5 overflow-hidden flex flex-col shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)] relative bg-[#090b14]/20">
+                <div className="lg:col-span-3 card overflow-hidden flex flex-col relative min-h-[600px]">
                     {selectedLead ? (
                         <LeadDetail
                             lead={selectedLead}
@@ -127,34 +128,34 @@ const Overview: React.FC<OverviewProps> = ({ leads, isLoading }) => {
                         />
                     ) : (
                         <div className="m-auto flex flex-col items-center text-center p-12 max-w-xl">
-                            <div className="relative mb-12">
-                                <div className="absolute inset-0 bg-accent/10 blur-[80px] rounded-full scale-150 animate-pulse"></div>
-                                <div className="relative w-28 h-28 glass-card border-accent/20 flex items-center justify-center rotate-6 transform transition-all hover:rotate-0 hover:scale-105 duration-700 shadow-2xl">
-                                    <Cpu className="text-accent drop-shadow-[0_0_15px_rgba(46,255,161,0.3)]" size={48} />
+                            <div className="relative mb-10">
+                                <div className="relative w-24 h-24 bg-brand-muted border border-brand/20 flex items-center justify-center rotate-6 transform transition-all hover:rotate-0 hover:scale-105 duration-700 shadow-card rounded-2xl">
+                                    <Icon icon="solar:cpu-bolt-linear" width={44} className="text-brand" />
                                 </div>
-                                <div className="absolute -bottom-3 -right-3 w-12 h-12 glass-card border-purple-500/20 flex items-center justify-center -rotate-12 shadow-2xl">
-                                    <Activity className="text-purple-400" size={20} />
+                                <div className="absolute -bottom-3 -right-3 w-11 h-11 bg-white border border-border shadow-card flex items-center justify-center -rotate-12 rounded-xl">
+                                    <Icon icon="solar:activity-linear" width={20} className="text-violet-500" />
                                 </div>
                             </div>
-                            <h3 className="text-4xl font-black text-white tracking-tight">
-                                Neural <span className="text-gradient">Observation</span>
+                            <h3 className="text-3xl font-bold text-ink tracking-tight">
+                                Agent <span className="text-brand">Observation</span>
                             </h3>
-                            <p className="text-muted font-medium text-sm mt-6 leading-relaxed max-w-md mx-auto">
-                                Initialize high-fidelity Albert Monitoring by selecting a registry profile. 
-                                Gain real-time visibility into neural extracted signals and conversation telemetry.
+                            <p className="text-ink-muted text-sm mt-4 leading-relaxed max-w-md mx-auto font-medium">
+                                Initialize Agent Monitoring by selecting a registry profile.
+                                Gain real-time visibility into extracted signals and conversation telemetry.
                             </p>
-                            <div className="grid grid-cols-2 gap-6 mt-12 w-full text-left">
-                                <div className="p-5 glass-card border-none bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
-                                    <p className="text-[11px] font-black text-accent uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                                        <Zap size={12} className="group-hover:rotate-12 transition-transform" /> Observability
+
+                            <div className="grid grid-cols-2 gap-6 mt-10 w-full text-left">
+                                <div className="p-5 bg-bg-elevated border border-border rounded-xl transition-all group hover:border-brand/30">
+                                    <p className="text-xs font-semibold text-brand tracking-tight mb-2 flex items-center gap-2">
+                                        <Icon icon="solar:bolt-linear" width={16} className="group-hover:rotate-12 transition-transform" /> Observability
                                     </p>
-                                    <p className="text-[12px] text-muted leading-relaxed font-medium">Quantify model precision, token throughput, and real-time operational costs.</p>
+                                    <p className="text-xs text-ink-muted leading-relaxed">Quantify model precision, token throughput, and real-time operational costs.</p>
                                 </div>
-                                <div className="p-5 glass-card border-none bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
-                                    <p className="text-[11px] font-black text-purple-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                                        <TrendingUp size={12} className="group-hover:scale-110 transition-transform" /> Synthesis
+                                <div className="p-5 bg-bg-elevated border border-border rounded-xl transition-all group hover:border-brand/30">
+                                    <p className="text-xs font-semibold text-violet-600 tracking-tight mb-2 flex items-center gap-2">
+                                        <Icon icon="solar:trending-up-linear" width={16} className="group-hover:scale-110 transition-transform" /> Synthesis
                                     </p>
-                                    <p className="text-[12px] text-muted leading-relaxed font-medium">Autonomous extraction of BANT vectors and strategic sales psychological alignment.</p>
+                                    <p className="text-xs text-ink-muted leading-relaxed">Autonomous extraction of BANT vectors and strategic sales psychological alignment.</p>
                                 </div>
                             </div>
                         </div>
@@ -163,12 +164,12 @@ const Overview: React.FC<OverviewProps> = ({ leads, isLoading }) => {
             </div>
 
             {/* Bottom Row: System Pulse */}
-            <div className="pt-8 border-t border-white/5">
+            <div className="pt-8 border-t border-border">
                 <div className="flex items-center justify-between mb-8 px-2">
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted flex items-center gap-3">
-                        <Activity size={16} className="text-accent" /> System Telemetry Feed
+                    <h2 className="text-sm font-semibold tracking-tight text-ink inline-flex items-center gap-2.5 bg-white border border-border rounded-xl px-4 py-2 shadow-card">
+                        <Icon icon="solar:activity-linear" width={18} className="text-brand" /> System Telemetry Feed
                     </h2>
-                    <span className="text-[10px] font-black text-muted/40 uppercase tracking-widest">Real-time Stream / Node 01</span>
+                    <span className="text-xs text-ink-faint bg-white border border-border rounded-xl px-4 py-2 shadow-card">Real-time Stream / Node 01</span>
                 </div>
                 <ActivityFeed />
             </div>

@@ -63,3 +63,20 @@ export interface LLMSession {
 }
 
 export type ConversationStateName = ConversationState['current_state']
+
+export interface Client {
+    id: string
+    business_name: string
+    whatsapp_number: string
+    api_key: string
+    is_active: boolean
+    sales_contact: string | null
+    created_at: string
+}
+
+export interface BaileysSession {
+    sessionId: string
+    status: 'connected' | 'pairing' | 'offline' | 'connecting'
+    qr?: string
+    error?: string
+}

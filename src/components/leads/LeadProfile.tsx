@@ -7,8 +7,8 @@ interface LeadProfileProps {
 
 const DetailRow = ({ label, value }: { label: string, value: string }) => (
     <div className="space-y-1">
-        <span className="text-[10px] text-muted font-mono uppercase tracking-widest">{label}</span>
-        <p className="text-sm font-medium text-white">{value || '—'}</p>
+        <span className="text-[11px] text-ink-faint font-medium">{label}</span>
+        <p className="text-sm font-medium text-ink">{value || '—'}</p>
     </div>
 )
 
@@ -27,8 +27,8 @@ export const LeadProfile: React.FC<LeadProfileProps> = ({ lead }) => {
             </div>
 
             <div className="space-y-3 pt-6 border-t border-border">
-                <h4 className="text-[10px] text-muted font-mono uppercase tracking-[0.2em]">Initial Inquiry Message</h4>
-                <div className="relative p-6 bg-accent/5 rounded-2xl border-l-4 border-accent italic text-sm text-white/80 leading-relaxed font-serif">
+                <h4 className="text-xs font-semibold text-ink-muted">Initial Inquiry Message</h4>
+                <div className="p-5 bg-brand-muted rounded-xl border-l-4 border-brand text-sm text-ink leading-relaxed">
                     "{lead.form_message}"
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, hasValidConfig } from '../lib/supabase'
 import type { Lead } from '../types'
 
 export const useLeads = () => {
@@ -9,6 +9,10 @@ export const useLeads = () => {
 
     const fetchLeads = useCallback(async () => {
         try {
+            if (!hasValidConfig()) {
+                setIsLoading(false)
+                return
+            }
             setIsLoading(true)
             const { data, error } = await supabase
                 .from('leads')

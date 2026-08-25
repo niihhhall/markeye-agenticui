@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import type { Lead } from '../types'
 import { LeadsList } from '../components/leads/LeadsList'
 import { LeadDetail } from '../components/leads/LeadDetail'
-import { MessageSquare } from 'lucide-react'
+import { Icon } from '@iconify/react'
 
 interface ConversationsProps {
     leads: Lead[]
@@ -16,21 +16,21 @@ const Conversations: React.FC<ConversationsProps> = ({ leads, isLoading, refetch
     const selectedLead = leads.find(l => l.id === selectedLeadId)
 
     return (
-        <div className="h-[calc(100vh-64px)] flex overflow-hidden lg:p-8 lg:gap-8 animate-fade-up">
-            <div className="w-full lg:w-[450px] flex-shrink-0 glass-card-sidebar border border-white/5 lg:rounded-[40px] overflow-hidden flex flex-col shadow-2xl bg-[#090b14]/10">
-                <div className="p-10 border-b border-white/5 bg-white/[0.01]">
-                    <h1 className="text-3xl font-black italic tracking-tighter uppercase italic flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                            <MessageSquare size={22} />
+        <div className="h-[calc(100vh-64px)] flex overflow-hidden lg:p-8 lg:gap-6 animate-fade-up">
+            <div className="w-full lg:w-[450px] flex-shrink-0 card lg:rounded-2xl overflow-hidden flex flex-col">
+                <div className="p-8 border-b border-border bg-bg-elevated/40">
+                    <h1 className="text-2xl font-bold tracking-tight text-ink flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-brand-muted flex items-center justify-center text-brand">
+                            <Icon icon="solar:chat-round-dots-linear" width={22} />
                         </div>
-                        Live <span className="text-gradient">Discussions</span>
+                        Live <span className="text-brand">Conversations</span>
                     </h1>
-                    <p className="text-[10px] text-muted/40 font-black uppercase tracking-[0.3em] mt-3 italic mb-1">
-                        Neural Telemetry Hub
+                    <p className="text-xs text-ink-muted mt-2">
+                        Monitor and manage active lead conversations
                     </p>
-                    <div className="flex items-center gap-2 mt-4 px-3 py-1.5 bg-accent/5 border border-accent/20 rounded-xl w-fit">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></div>
-                        <span className="text-[10px] font-black text-accent uppercase tracking-widest">{leads.length} ACTIVE THREADS</span>
+                    <div className="flex items-center gap-2 mt-4 px-3 py-1.5 bg-brand-muted border border-brand/20 rounded-xl w-fit">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></div>
+                        <span className="text-xs font-semibold text-brand">{leads.length} Active Threads</span>
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden">
@@ -44,9 +44,9 @@ const Conversations: React.FC<ConversationsProps> = ({ leads, isLoading, refetch
                 </div>
             </div>
 
-            <div className="hidden lg:flex flex-1 glass-card !rounded-[56px] border border-white/5 overflow-hidden relative shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)] bg-[#090b14]/20">
+            <div className="hidden lg:flex flex-1 card rounded-2xl overflow-hidden relative">
                 {selectedLead ? (
-                    <div className="w-full h-full backdrop-blur-3xl">
+                    <div className="w-full h-full">
                         <LeadDetail
                             lead={selectedLead}
                             onClose={() => { }}
@@ -54,17 +54,14 @@ const Conversations: React.FC<ConversationsProps> = ({ leads, isLoading, refetch
                         />
                     </div>
                 ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center space-y-8">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-accent/10 blur-[60px] rounded-full scale-150 animate-pulse"></div>
-                            <div className="relative w-20 h-20 glass-card border-white/5 flex items-center justify-center rotate-12 group hover:rotate-0 transition-transform duration-700 shadow-2xl">
-                                <MessageSquare size={32} className="text-muted/20" />
-                            </div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center space-y-6">
+                        <div className="w-20 h-20 card rounded-2xl flex items-center justify-center">
+                            <Icon icon="solar:chat-round-dots-linear" width={32} className="text-ink-faint" />
                         </div>
-                        <div className="space-y-3">
-                            <h3 className="text-lg font-black text-white/40 uppercase tracking-[0.2em] italic">Awaiting Synchrony</h3>
-                            <p className="text-[10px] text-muted/20 font-black uppercase tracking-widest leading-relaxed max-w-[200px]">
-                                Initialize observation by selecting an active discussion thread from the Registry.
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-semibold text-ink tracking-tight">No Conversation Selected</h3>
+                            <p className="text-sm text-ink-muted leading-relaxed max-w-[240px]">
+                                Select an active conversation thread from the list to view details.
                             </p>
                         </div>
                     </div>

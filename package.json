@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@iconify/json": "^2.2.520",
+    "@iconify/react": "^6.0.2",
     "@supabase/supabase-js": "^2.98.0",
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",

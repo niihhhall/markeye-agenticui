@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, hasValidConfig } from '../lib/supabase'
 
 export const useRealtime = (onUpdate: () => void) => {
     const [isConnected, setIsConnected] = useState(true)
     const [lastUpdated, setLastUpdated] = useState(new Date())
 
     useEffect(() => {
+        if (!hasValidConfig()) {
+            setIsConnected(false)
+            return
+        }
+
         const channel = supabase.channel('dashboard-realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => {
                 setLastUpdated(new Date())

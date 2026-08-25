@@ -1,19 +1,10 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import {
-    LayoutDashboard,
-    Users,
-    MessageSquare,
-    CalendarCheck,
-    Activity,
-    Brain,
-    LogOut
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { Icon } from '@iconify/react'
 
 interface NavItem {
     label: string
-    icon: LucideIcon
+    icon: string
     path: string
 }
 
@@ -21,79 +12,112 @@ interface SidebarProps {
     onLogout: () => void
     isOpen: boolean
     setIsOpen: (open: boolean) => void
+    isCollapsed: boolean
+    onToggleCollapse: () => void
 }
 
-const navItems: NavItem[] = [
-    { label: 'Overview', icon: LayoutDashboard, path: '/' },
-    { label: 'Leads', icon: Users, path: '/leads' },
-    { label: 'Conversations', icon: MessageSquare, path: '/conversations' },
-    { label: 'Bookings', icon: CalendarCheck, path: '/bookings' },
-    { label: 'Training', icon: Brain, path: '/training' },
-    { label: 'Albert Status', icon: Activity, path: '/albert' },
+const navSections: { title: string; items: NavItem[] }[] = [
+    {
+        title: 'Workspace',
+        items: [
+            { label: 'Overview', icon: 'solar:widget-4-linear', path: '/' },
+            { label: 'Leads', icon: 'solar:users-group-rounded-linear', path: '/leads' },
+            { label: 'Conversations', icon: 'solar:chat-line-linear', path: '/conversations' },
+            { label: 'Bookings', icon: 'solar:calendar-mark-linear', path: '/bookings' },
+        ],
+    },
+    {
+        title: 'Agent',
+        items: [
+            { label: 'Instances', icon: 'solar:server-square-linear', path: '/instances' },
+            { label: 'Training', icon: 'solar:brain-linear', path: '/training' },
+            { label: 'Performance', icon: 'solar:chart-square-linear', path: '/performance' },
+        ],
+    },
 ]
 
-export const Sidebar: React.FC<SidebarProps> = ({ onLogout, isOpen, setIsOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+    onLogout,
+    isOpen,
+    setIsOpen,
+    isCollapsed,
+    onToggleCollapse
+}) => {
     return (
         <>
             {/* Mobile Overlay */}
             <div
-                className={`fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-40 lg:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                className={`fixed inset-0 bg-ink/40 backdrop-blur-sm z-40 lg:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
                     }`}
                 onClick={() => setIsOpen(false)}
             ></div>
 
-            <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 glass-card-sidebar border-r border-white/5 flex flex-col transform transition-transform duration-500 shadow-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                }`}>
-                <div className="p-10">
-                    <div className="flex items-center gap-4 mb-12 group cursor-pointer">
-                        <div className="w-12 h-12 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-500">
-                            <img src="/favicon.png" alt="After5 Logo" className="w-8 h-8 object-contain group-hover:rotate-12 transition-transform" />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter leading-none">After<span className="text-gradient">5</span></h2>
-                            <p className="text-[10px] text-muted/40 font-black uppercase tracking-[0.3em] mt-2 italic">Neural Agent v.01</p>
-                        </div>
-                    </div>
+            <aside className={`fixed lg:static inset-y-0 left-0 z-50 transition-all duration-300 glass-card-sidebar flex flex-col shadow-xl lg:shadow-none
+                ${isCollapsed ? 'w-[76px]' : 'w-64'}
+                ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
+                {/* Collapse toggle */}
+                <button
+                    onClick={onToggleCollapse}
+                    className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white border border-border rounded-full items-center justify-center text-ink-faint hover:text-brand hover:border-brand/40 transition-all duration-200 z-[60] shadow-card"
+                    aria-label="Toggle sidebar"
+                >
+                    <Icon icon={isCollapsed ? 'solar:alt-arrow-right-linear' : 'solar:alt-arrow-left-linear'} width="14" />
+                </button>
 
-                    <nav className="space-y-2">
-                        {navItems.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                onClick={() => { if (window.innerWidth < 1024) setIsOpen(false) }}
-                                className={({ isActive }) => `
-                                    w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300
-                                    !text-[11px] !font-black !uppercase !tracking-[0.2em] !italic
-                                    ${isActive ? 'bg-accent/10 border border-accent/20 text-accent shadow-[0_0_20px_rgba(46,255,161,0.1)]' : 'text-muted/40 hover:bg-white/5 hover:text-white border border-transparent'}
-                                `}
-                            >
-                                {({ isActive }) => (
-                                    <>
-                                        <item.icon size={18} className={`shrink-0 ${isActive ? 'text-accent' : 'text-muted/40'}`} />
-                                        <span className="truncate">{item.label}</span>
-                                    </>
-                                )}
-                            </NavLink>
-                        ))}
-                    </nav>
+                {/* Branding */}
+                <div className={`flex items-center gap-3 group cursor-pointer pt-7 pb-2 px-5 ${isCollapsed ? 'justify-center px-0' : ''}`}>
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                        <img src="/markeye-logo.png" alt="MarkEye logo" className="w-full h-full object-cover" />
+                    </div>
+                    {!isCollapsed && (
+                        <div className="animate-fade-right overflow-hidden whitespace-nowrap">
+                            <h2 className="text-lg font-extrabold text-ink tracking-tight leading-none">Mark<span className="text-brand">Eye</span></h2>
+                            <p className="text-[10px] text-ink-muted font-medium mt-1 tracking-wide">AgenticUI</p>
+                        </div>
+                    )}
                 </div>
 
-                <div className="mt-auto p-6 border-t border-white/5">
-                    <div className="flex items-center gap-4 p-4 glass-card !rounded-3xl border border-white/5 group hover:bg-white/[0.04] transition-all cursor-pointer">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/40 border border-accent/20 flex items-center justify-center text-accent font-black text-xs shadow-lg group-hover:scale-110 transition-transform italic">
-                            LF
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-black text-white uppercase italic tracking-tight">Louis F.</p>
-                            <p className="text-[9px] text-muted/30 font-black uppercase tracking-widest mt-1">Super Admin</p>
-                        </div>
-                        <button
-                            onClick={onLogout}
-                            className="w-10 h-10 rounded-xl bg-white/5 text-muted/40 hover:text-red-400 border border-transparent hover:border-red-400/20 transition-all flex items-center justify-center"
+                <nav className={`flex-1 space-y-1 mt-6 px-3 ${isCollapsed ? '' : ''}`}>
+                    {!isCollapsed && (
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint px-3 mb-1.5">
+                            Workspace
+                        </p>
+                    )}
+                    {navSections.flatMap(s => s.items).map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => { if (window.innerWidth < 1024) setIsOpen(false) }}
+                            title={item.label}
+                            className={({ isActive }) => `
+                                w-full flex items-center transition-all duration-200 rounded-xl text-sm font-medium
+                                ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-3 py-2.5 gap-3'}
+                                ${isActive
+                                    ? 'bg-brand text-white shadow-lift'
+                                    : 'text-ink-soft hover:bg-brand-muted hover:text-brand'}
+                            `}
                         >
-                            <LogOut size={16} />
-                        </button>
-                    </div>
+                            {({ isActive }) => (
+                                <>
+                                    <Icon icon={item.icon} width="20" className={`shrink-0 ${isActive ? 'text-white' : 'text-ink-muted group-hover:text-brand'}`} />
+                                    {!isCollapsed && <span className="truncate animate-fade-right">{item.label}</span>}
+                                </>
+                            )}
+                        </NavLink>
+                    ))}
+                </nav>
+
+                {/* Footer / Logout */}
+                <div className="mt-auto p-4 border-t border-border">
+                    <button
+                        onClick={onLogout}
+                        className={`group w-full flex items-center gap-3 rounded-xl transition-all duration-200 text-sm font-medium text-ink-muted hover:text-red-600 hover:bg-red-50 ${isCollapsed ? 'justify-center p-3' : 'px-3 py-2.5'}`}
+                        title={isCollapsed ? 'Disconnect' : ''}
+                    >
+                        <Icon icon="solar:logout-2-linear" width="20" className="shrink-0" />
+                        {!isCollapsed && <span>Disconnect</span>}
+                    </button>
                 </div>
             </aside>
         </>

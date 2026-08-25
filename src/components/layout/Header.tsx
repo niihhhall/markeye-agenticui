@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Menu, CircleAlert } from 'lucide-react'
+import { Icon } from '@iconify/react'
 
 interface HeaderProps {
     title: string
@@ -26,50 +26,44 @@ export const Header: React.FC<HeaderProps> = ({
     }, [lastUpdated])
 
     return (
-        <header className="h-24 border-b border-white/5 flex items-center justify-between px-10 bg-black/10 backdrop-blur-3xl sticky top-0 z-30 shadow-[0_1px_20px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center gap-6">
+        <header className="h-[72px] border-b border-border flex items-center justify-between px-6 lg:px-8 bg-white/80 backdrop-blur-xl sticky top-0 z-30">
+            <div className="flex items-center gap-4">
                 <button
                     onClick={onToggleMenu}
-                    className="lg:hidden w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-muted hover:text-white transition-all border border-white/10"
+                    className="lg:hidden w-10 h-10 rounded-xl bg-brand-muted flex items-center justify-center text-ink-soft hover:text-brand transition-all border border-border"
                 >
-                    <Menu size={24} />
+                    <Icon icon="solar:hamburger-menu-linear" width="22" />
                 </button>
                 <div className="flex flex-col">
-                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white">
-                        <span className="text-gradient">{title}</span> Telemetry
-                    </h1>
-                    <p className="text-[9px] text-muted/40 font-black uppercase tracking-[0.3em] mt-1 italic">Real-time Data Stream</p>
+                    <h1 className="text-lg lg:text-xl font-bold tracking-tight text-ink leading-tight">{title}</h1>
+                    <p className="text-[11px] text-ink-muted font-medium">Real-time overview of your lead pipeline</p>
                 </div>
             </div>
 
-            <div className="flex items-center gap-10">
-                <div className="hidden md:flex items-center gap-10">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 px-5 py-2.5 rounded-2xl shadow-inner group hover:bg-white/[0.04] transition-all">
-                            <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-accent shadow-[0_0_10px_#2effa1] pulse-dot' : 'bg-amber-500 animate-pulse shadow-[0_0_10px_#f59e0b]'}`}></div>
-                            <span className={`text-[11px] font-black uppercase tracking-widest italic ${isConnected ? 'text-accent' : 'text-amber-500'}`}>
-                                {isConnected ? 'Link Active' : 'Restablishing Link'}
-                            </span>
-                            <div className="w-px h-4 bg-white/10 mx-2"></div>
-                            <span className="text-[10px] text-muted/40 font-black uppercase tracking-widest italic">
-                                Sync: {seconds}s
-                            </span>
-                        </div>
-                    </div>
+            <div className="flex items-center gap-3">
+                <div className="hidden md:flex items-center gap-2.5 bg-white border border-border px-4 py-2 rounded-xl shadow-card">
+                    <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse-dot' : 'bg-amber-500 animate-pulse'}`}></span>
+                    <span className={`text-xs font-semibold ${isConnected ? 'text-emerald-600' : 'text-amber-600'}`}>
+                        {isConnected ? 'Live' : 'Reconnecting'}
+                    </span>
+                    <span className="text-ink-faint text-xs font-medium">·</span>
+                    <span className="text-[11px] text-ink-muted font-medium">Synced {seconds}s ago</span>
+                </div>
 
-                    <div className="flex items-center gap-4 bg-accent/5 border border-accent/20 px-6 py-2.5 rounded-2xl shadow-inner group hover:bg-accent/10 transition-all">
-                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
-                        <span className="text-[11px] font-black italic text-accent uppercase tracking-widest">
-                            {leadsCount} Registered Leads
-                        </span>
-                    </div>
+                <div className="hidden sm:flex items-center gap-2 bg-brand-muted border border-brand/15 px-4 py-2 rounded-xl">
+                    <Icon icon="solar:users-group-two-rounded-bold" width="16" className="text-brand" />
+                    <span className="text-xs font-semibold text-brand">{leadsCount} leads</span>
                 </div>
 
                 {!isConnected && (
-                    <div className="md:hidden w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
-                        <CircleAlert size={18} className="animate-pulse" />
+                    <div className="md:hidden w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500">
+                        <Icon icon="solar:danger-triangle-linear" width="18" className="animate-pulse" />
                     </div>
                 )}
+
+                <div className="hidden md:flex w-9 h-9 rounded-full bg-gradient-to-br from-brand to-brand-dark items-center justify-center text-white text-xs font-bold ring-2 ring-white shadow-card cursor-pointer hover:scale-105 transition-transform">
+                    NH
+                </div>
             </div>
         </header>
     )

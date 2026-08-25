@@ -7,7 +7,7 @@ import { ConversationView } from './ConversationView'
 import { IntelligenceView } from './IntelligenceView'
 import { supabase } from '../../lib/supabase'
 import { useMessages } from '../../hooks/useMessages'
-import { Phone, Mail, ExternalLink, Calendar as CalendarIcon, MessageSquare, BrainCircuit, User, X, RotateCcw } from 'lucide-react'
+import { Icon } from '@iconify/react'
 
 interface LeadDetailProps {
     lead: Lead
@@ -21,7 +21,6 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({ lead, onClose, refetch }
     const [state, setState] = useState<ConversationState | null>(null)
     const [isResetting, setIsResetting] = useState(false)
 
-    // Load conversation state
     React.useEffect(() => {
         if (!lead.id) return
 
@@ -36,7 +35,6 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({ lead, onClose, refetch }
 
         fetchState()
 
-        // Subscribe to real-time changes for this lead's state
         const channel = supabase
             .channel(`state-${lead.id}`)
             .on(
@@ -68,7 +66,6 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({ lead, onClose, refetch }
 
         setIsResetting(true)
         try {
-            // Determine API URL based on environment
             const isProd = import.meta.env.PROD || window.location.hostname !== 'localhost'
             const defaultApiUrl = isProd ? 'https://after5-agent-production.up.railway.app' : 'http://localhost:8000'
             const apiUrl = import.meta.env.VITE_API_URL || defaultApiUrl
@@ -80,9 +77,10 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({ lead, onClose, refetch }
             })
             const data = await res.json()
             if (data.status === 'ok') {
-                alert('Session reset successfully! Albert will treat them as a new customer.')
+                alert('Session reset successfully! The agent will treat them as a new customer.')
                 refetch()
             } else {
+
                 alert(`Failed to reset session: ${data.reason || data.message}`)
             }
         } catch (error) {
@@ -94,85 +92,77 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({ lead, onClose, refetch }
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#090b14]/40 relative custom-scrollbar overflow-y-auto overflow-x-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between p-10 border-b border-white/5 bg-[#090b14]/60 backdrop-blur-2xl sticky top-0 z-20">
-                <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-[24px] bg-accent/10 flex items-center justify-center text-accent border border-accent/20 shadow-[0_0_30px_rgba(46,255,161,0.1)]">
-                        <User size={32} />
+        <div className="flex flex-col h-full bg-white relative custom-scrollbar overflow-y-auto overflow-x-hidden">
+            <div className="flex items-center justify-between p-8 border-b border-border sticky top-0 z-20 bg-white">
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white shadow-card">
+                        <Icon icon="solar:user-rounded-linear" width={28} />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black tracking-tighter text-white italic uppercase">{lead.first_name} {lead.last_name || ''}</h2>
-                        <div className="flex items-center gap-4 mt-2">
-                            <div className="scale-110 origin-left">
-                                <Badge variant="source" value={lead.lead_source} label="Source" />
-                            </div>
+                        <h2 className="text-2xl font-bold tracking-tight text-ink">{lead.first_name} {lead.last_name || ''}</h2>
+                        <div className="flex items-center gap-3 mt-1.5">
+                            <Badge variant="source" value={lead.lead_source} label="Source" />
                             <SignalScore score={lead.signal_score} />
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                     <button
                         onClick={handleResetSession}
                         disabled={isResetting}
-                        className="btn-secondary !py-2.5 !px-5 !bg-red-500/5 !border-red-500/20 !text-red-500 hover:!bg-red-500/10 hover:!border-red-500/40 group relative overflow-hidden"
+                        className="btn-secondary group"
                         title="Reset Lead's Session History"
                     >
-                        <div className="flex items-center gap-3 relative z-10">
-                            <RotateCcw size={16} className={`${isResetting ? "animate-spin" : "group-hover:-rotate-180 transition-transform duration-500"}`} />
-                            <span className="hidden sm:inline font-black">{isResetting ? 'PURGING...' : 'PURGE SESSION'}</span>
+                        <div className="flex items-center gap-2">
+                            <Icon icon="solar:restart-linear" width={16} className={isResetting ? "animate-spin" : "group-hover:-rotate-180 transition-transform duration-500"} />
+                            <span className="hidden sm:inline font-semibold">{isResetting ? 'Resetting...' : 'Reset Session'}</span>
                         </div>
                     </button>
                     <button
                         onClick={onClose}
-                        className="w-12 h-12 flex items-center justify-center hover:bg-white/10 rounded-2xl transition-all duration-300 text-muted/40 hover:text-white border border-transparent hover:border-white/10"
+                        className="w-10 h-10 flex items-center justify-center hover:bg-bg-elevated rounded-xl transition-all duration-200 text-ink-faint hover:text-ink border border-transparent hover:border-border"
                     >
-                        <X size={24} />
+                        <Icon icon="solar:close-circle-linear" width={24} />
                     </button>
                 </div>
             </div>
 
-            {/* Quick Actions / Contact */}
-            <div className="p-10 border-b border-white/5 bg-white/[0.01] grid grid-cols-2 gap-6">
-                <a href={`tel:${lead.phone}`} className="flex items-center gap-5 p-5 rounded-[28px] bg-white/[0.02] border border-white/5 hover:border-accent/40 hover:bg-white/[0.04] transition-all duration-500 group shadow-lg">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5 text-muted/40 group-hover:text-accent group-hover:bg-accent/10 border border-white/5 group-hover:border-accent/20 flex items-center justify-center transition-all duration-500">
-                        <Phone size={20} />
+            <div className="p-8 border-b border-border grid grid-cols-2 gap-5">
+                <a href={`tel:${lead.phone}`} className="flex items-center gap-4 p-4 rounded-xl bg-white border border-border hover:border-brand/30 hover:bg-brand-muted/40 transition-all duration-200 group">
+                    <div className="w-11 h-11 rounded-xl bg-brand-muted text-brand flex items-center justify-center transition-colors duration-200">
+                        <Icon icon="solar:phone-linear" width={20} />
                     </div>
                     <div className="overflow-hidden">
-                        <p className="text-[10px] font-black text-muted/40 uppercase tracking-[0.2em] mb-1 italic">Voice Line</p>
-                        <p className="text-[13px] font-black text-white tracking-tight">{lead.phone}</p>
+                        <p className="text-[10px] font-medium text-ink-faint mb-0.5">Voice Line</p>
+                        <p className="text-sm font-semibold text-ink tracking-tight">{lead.phone}</p>
                     </div>
-                    <ExternalLink size={14} className="ml-auto text-muted/10 group-hover:text-accent/40 transition-colors" />
+                    <Icon icon="solar:arrow-right-up-linear" width={14} className="ml-auto text-ink-faint group-hover:text-brand transition-colors" />
                 </a>
-                <a href={`mailto:${lead.email}`} className="flex items-center gap-5 p-5 rounded-[28px] bg-white/[0.02] border border-white/5 hover:border-accent/40 hover:bg-white/[0.04] transition-all duration-500 group shadow-lg">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5 text-muted/40 group-hover:text-accent group-hover:bg-accent/10 border border-white/5 group-hover:border-accent/20 flex items-center justify-center transition-all duration-500">
-                        <Mail size={20} />
+                <a href={`mailto:${lead.email}`} className="flex items-center gap-4 p-4 rounded-xl bg-white border border-border hover:border-brand/30 hover:bg-brand-muted/40 transition-all duration-200 group">
+                    <div className="w-11 h-11 rounded-xl bg-brand-muted text-brand flex items-center justify-center transition-colors duration-200">
+                        <Icon icon="solar:letter-linear" width={20} />
                     </div>
                     <div className="overflow-hidden">
-                        <p className="text-[10px] font-black text-muted/40 uppercase tracking-[0.2em] mb-1 italic">Neural Proxy</p>
-                        <p className="text-[13px] font-black text-white tracking-tight truncate max-w-[150px]">{lead.email || 'NOT_FOUND'}</p>
+                        <p className="text-[10px] font-medium text-ink-faint mb-0.5">Email</p>
+                        <p className="text-sm font-semibold text-ink tracking-tight truncate max-w-[150px]">{lead.email || 'Not found'}</p>
                     </div>
-                    <ExternalLink size={14} className="ml-auto text-muted/10 group-hover:text-accent/40 transition-colors" />
+                    <Icon icon="solar:arrow-right-up-linear" width={14} className="ml-auto text-ink-faint group-hover:text-brand transition-colors" />
                 </a>
             </div>
 
-            {/* Tabs Navigation */}
-            <div className="px-10 py-8">
-                <div className="glass-card !p-1.5 !rounded-2xl border-white/5 bg-white/[0.01]">
-                    <SegmentedControl
-                        options={[
-                            { id: 'conversation', label: 'Telemetry Stream', icon: MessageSquare },
-                            { id: 'intelligence', label: 'Signal Analysis', icon: BrainCircuit },
-                            { id: 'profile', label: 'Object Metadata', icon: User }
-                        ]}
-                        activeId={activeTab}
-                        onChange={setActiveTab}
-                    />
-                </div>
+            <div className="px-8 py-6">
+                <SegmentedControl
+                    options={[
+                        { id: 'conversation', label: 'Conversation', icon: 'solar:chat-square-linear' },
+                        { id: 'intelligence', label: 'Intelligence', icon: 'solar:brain-linear' },
+                        { id: 'profile', label: 'Profile', icon: 'solar:user-linear' }
+                    ]}
+                    activeId={activeTab}
+                    onChange={setActiveTab}
+                />
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1 overflow-hidden px-10 pb-10">
+            <div className="flex-1 overflow-hidden px-8 pb-8">
                 {activeTab === 'conversation' && (
                     <ConversationView
                         lead={lead}
@@ -188,41 +178,39 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({ lead, onClose, refetch }
                     />
                 )}
                 {activeTab === 'profile' && (
-                    <div className="space-y-12 animate-fade-up">
-                        <section className="space-y-6">
-                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted/40 italic flex items-center gap-3">
-                                <div className="w-1 h-3 bg-accent/20 rounded-full" /> Core Object Metadata
+                    <div className="space-y-8 animate-fade-up">
+                        <section className="space-y-4">
+                            <h3 className="text-xs font-semibold text-ink-muted flex items-center gap-2">
+                                Core Details
                             </h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="glass-card !p-6 !rounded-[24px] !border-white/5 bg-white/[0.01] shadow-inner relative group overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 blur-2xl group-hover:bg-white/10 transition-all rounded-full"></div>
-                                    <p className="text-[10px] text-muted/40 font-black uppercase tracking-widest mb-2 italic">Registry ID</p>
-                                    <p className="text-xs font-black font-mono tracking-tighter text-white">{lead.id}</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white p-5 rounded-xl border border-border">
+                                    <p className="text-[11px] text-ink-faint font-medium mb-1.5">Registry ID</p>
+                                    <p className="text-xs font-semibold text-ink truncate">{lead.id}</p>
                                 </div>
-                                <div className="glass-card !p-6 !rounded-[24px] !border-white/5 bg-white/[0.01] shadow-inner relative group overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 blur-2xl group-hover:bg-white/10 transition-all rounded-full"></div>
-                                    <p className="text-[10px] text-muted/40 font-black uppercase tracking-widest mb-2 italic">Ingestion Timestamp</p>
-                                    <p className="text-xs font-black text-white tracking-tight italic">{new Date(lead.created_at).toLocaleString()}</p>
+                                <div className="bg-white p-5 rounded-xl border border-border">
+                                    <p className="text-[11px] text-ink-faint font-medium mb-1.5">Created</p>
+                                    <p className="text-xs font-semibold text-ink">{new Date(lead.created_at).toLocaleString()}</p>
                                 </div>
                             </div>
                         </section>
 
-                        <section className="space-y-6">
-                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted/40 italic flex items-center gap-3">
-                                <div className="w-1 h-3 bg-purple-500/20 rounded-full" /> Temporal Scheduling
+                        <section className="space-y-4">
+                            <h3 className="text-xs font-semibold text-ink-muted flex items-center gap-2">
+                                Scheduling
                             </h3>
-                            <div className="glass-card !p-8 !rounded-[32px] !border-white/5 bg-accent/5 flex items-center justify-between shadow-[0_12px_24px_-8px_rgba(46,255,161,0.05)] border-l-4 !border-l-accent">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-14 h-14 bg-accent/10 rounded-[20px] flex items-center justify-center text-accent shadow-inner border border-accent/20">
-                                        <CalendarIcon size={28} />
+                            <div className="bg-brand-muted rounded-2xl flex items-center justify-between p-6 border-l-4 border-l-brand">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand shadow-card">
+                                        <Icon icon="solar:calendar-mark-linear" width={24} />
                                     </div>
                                     <div>
-                                        <p className="text-lg font-black text-white tracking-tight italic uppercase">Awaiting Synchrony</p>
-                                        <p className="text-[10px] text-muted/60 font-black uppercase tracking-[0.2em] mt-1.5 italic">Albert is optimizing for high-yield conversion window</p>
+                                        <p className="text-base font-semibold text-ink tracking-tight">Awaiting scheduling</p>
+                                        <p className="text-xs text-ink-muted mt-0.5">Optimizing for the best conversion window</p>
                                     </div>
                                 </div>
-                                <button className="btn-premium !py-3 !px-6 text-[10px]">
-                                    Force Synchrony
+                                <button className="btn-premium !py-2.5 !px-5 text-xs">
+                                    Schedule Now
                                 </button>
                             </div>
                         </section>

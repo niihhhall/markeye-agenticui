@@ -1,10 +1,10 @@
 import React from 'react'
-import type { LucideIcon } from 'lucide-react'
+import { Icon } from '@iconify/react'
 
 interface Option {
     id: string
     label: string
-    icon?: LucideIcon
+    icon?: string
 }
 
 interface SegmentedControlProps {
@@ -15,23 +15,23 @@ interface SegmentedControlProps {
 
 export const SegmentedControl: React.FC<SegmentedControlProps> = ({ options, activeId, onChange }) => {
     return (
-        <div className="flex p-1 bg-bg-base border border-border rounded-xl">
+        <div className="inline-flex p-1 bg-bg-elevated border border-border rounded-xl">
             {options.map((option) => {
                 const id = typeof option === 'string' ? option : option.id
                 const label = typeof option === 'string' ? option : option.label
-                const Icon = typeof option === 'string' ? null : option.icon
+                const iconName = typeof option === 'string' ? null : option.icon
                 const isActive = activeId === id
 
                 return (
                     <button
                         key={id}
                         onClick={() => onChange(id)}
-                        className={`flex-1 py-1.5 text-[10px] font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-2 ${isActive
-                            ? 'bg-accent text-bg-base shadow-[0_0_10px_rgba(46,255,161,0.2)]'
-                            : 'text-muted hover:text-white'
+                        className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all inline-flex items-center justify-center gap-2 ${isActive
+                            ? 'bg-white text-brand shadow-card border border-border'
+                            : 'text-ink-muted hover:text-ink'
                             }`}
                     >
-                        {Icon && <Icon size={12} />}
+                        {iconName && <Icon icon={iconName} width={14} />}
                         {label}
                     </button>
                 )

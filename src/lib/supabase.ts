@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || localStorage.getItem('after5_supabase_url')
-let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || localStorage.getItem('after5_supabase_key')
+let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || localStorage.getItem('markeye_supabase_url')
+let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || localStorage.getItem('markeye_supabase_key')
+
+export const isDemoMode = localStorage.getItem('markeye_demo_mode') === 'true'
 
 const isValidUrl = (url: string) => {
     try {
@@ -14,10 +16,10 @@ const isValidUrl = (url: string) => {
 
 // Check for placeholders in env
 if (supabaseUrl === 'your_supabase_url_here') {
-    supabaseUrl = localStorage.getItem('after5_supabase_url') || null
+    supabaseUrl = localStorage.getItem('markeye_supabase_url') || null
 }
 if (supabaseAnonKey === 'your_supabase_anon_key_here') {
-    supabaseAnonKey = localStorage.getItem('after5_supabase_key') || null
+    supabaseAnonKey = localStorage.getItem('markeye_supabase_key') || null
 }
 
 export let supabase = createClient(
@@ -26,8 +28,9 @@ export let supabase = createClient(
 )
 
 export const updateSupabaseConfig = (url: string, key: string) => {
-    localStorage.setItem('after5_supabase_url', url)
-    localStorage.setItem('after5_supabase_key', key)
+    localStorage.setItem('markeye_supabase_url', url)
+    localStorage.setItem('markeye_supabase_key', key)
+    localStorage.removeItem('markeye_demo_mode') // Disable demo mode if real config provided
 
     // Create new client instance
     supabase = createClient(url, key)
@@ -36,6 +39,13 @@ export const updateSupabaseConfig = (url: string, key: string) => {
     window.location.reload()
 }
 
+export const enableDemoMode = () => {
+    localStorage.setItem('markeye_demo_mode', 'true')
+    window.location.reload()
+}
+
 export const hasValidConfig = () => {
+    if (isDemoMode) return true
     return isValidUrl(supabaseUrl || '') && !!supabaseAnonKey && supabaseUrl !== 'your_supabase_url_here'
 }
+

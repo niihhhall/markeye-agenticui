@@ -1,18 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { Icon } from '@iconify/react'
 import type { ConversationState, Booking, Message, Lead } from '../types'
-import { supabase } from '../lib/supabase'
+import { supabase, isDemoMode } from '../lib/supabase'
+import { MOCK_STATES, MOCK_MESSAGES, MOCK_BOOKINGS, MOCK_LEADS } from '../lib/mockData'
 import { StatCard } from '../components/ui/StatCard'
-import { StateDistribution } from '../components/albert/StateDistribution'
-import { SourcePerformance } from '../components/albert/SourcePerformance'
-import { Activity, Zap, Target, Award } from 'lucide-react'
+import { StateDistribution } from '../components/agent/StateDistribution'
+import { SourcePerformance } from '../components/agent/SourcePerformance'
 
-const AlbertStatus: React.FC = () => {
+const AgentPerformance: React.FC = () => {
     const [states, setStates] = useState<ConversationState[]>([])
     const [messages, setMessages] = useState<Message[]>([])
     const [bookings, setBookings] = useState<Booking[]>([])
     const [leads, setLeads] = useState<Lead[]>([])
 
     useEffect(() => {
+        if (isDemoMode) {
+            setStates(MOCK_STATES)
+            setMessages(MOCK_MESSAGES)
+            setBookings(MOCK_BOOKINGS)
+            setLeads(MOCK_LEADS)
+            return
+        }
+
         const fetchData = async () => {
             try {
                 const { data: sData } = await supabase.from('conversation_state').select('*')
@@ -74,25 +83,25 @@ const AlbertStatus: React.FC = () => {
     }, [states, messages, bookings, leads])
 
     const stats = [
-        { label: 'Conversations', value: states.length, icon: Activity, color: 'accent' },
-        { label: 'Total Messages', value: analytics.totalMsgs, icon: Zap, color: 'blue-500' },
-        { label: 'Bookings Gen', value: analytics.totalBookings, icon: Target, color: 'emerald-500' },
-        { label: 'Efficiency', value: '98.4%', icon: Award, color: 'amber-500' },
+    { label: 'Messages', value: analytics.totalMsgs, icon: 'solar:bolt-linear', color: 'bg-brand-muted text-brand' },
+    { label: 'Conversations', value: states.length, icon: 'solar:chart-square-linear', color: 'bg-emerald-50 text-emerald-600' },
+    { label: 'Bookings', value: analytics.totalBookings, icon: 'solar:target-linear', color: 'bg-amber-50 text-amber-600' },
+    { label: 'Efficiency', value: '98.4%', icon: 'solar:medal-ribbons-star-linear', color: 'bg-brand-muted text-brand' },
     ]
 
     return (
-        <div className="p-8 space-y-12 animate-fade-up h-full overflow-y-auto pb-20 max-w-[1600px] mx-auto">
+        <div className="p-8 space-y-10 animate-fade-up h-full overflow-y-auto pb-20 max-w-[1600px] mx-auto">
             <div className="flex items-center justify-between px-2">
                 <div>
-                    <h1 className="text-4xl font-black italic tracking-tighter uppercase italic">
-                        Albert <span className="text-gradient">Pulse</span>
-                    </h1>
-                    <p className="text-[10px] text-muted/60 font-black uppercase tracking-[0.3em] mt-2 italic">Neural Network Observability Platform</p>
+                    <h2 className="text-sm font-semibold text-ink-soft flex items-center gap-2">
+                        <Icon icon="solar:chart-square-linear" width={18} className="text-brand" /> Performance Overview
+                    </h2>
+                    <p className="text-xs text-ink-muted mt-1">Agent analytics and conversation telemetry</p>
                 </div>
                 <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-3 px-4 py-2 bg-accent/5 border border-accent/20 rounded-2xl shadow-[0_0_20px_rgba(46,255,161,0.05)]">
-                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(46,255,161,0.5)]"></div>
-                        <span className="text-[11px] font-black text-accent uppercase tracking-widest">Core Synchronized</span>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-xs font-semibold text-emerald-600">Core Synchronized</span>
                     </div>
                 </div>
             </div>
@@ -109,23 +118,21 @@ const AlbertStatus: React.FC = () => {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div className="glass-card !rounded-[40px] border-white/5 p-10 space-y-10 bg-[#090b14]/20 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[60px] rounded-full group-hover:bg-accent/10 transition-all duration-700"></div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted/40 mb-2">Architectural State Vectorization</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="card p-8 space-y-8">
+                    <h2 className="text-sm font-semibold text-ink mb-2">State Distribution</h2>
                     <StateDistribution data={analytics.distribution} />
                 </div>
-                <div className="glass-card !rounded-[40px] border-white/5 p-10 space-y-10 bg-[#090b14]/20 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[60px] rounded-full group-hover:bg-purple-500/10 transition-all duration-700"></div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted/40 mb-2">Ingestion Source Performance Metrics</h2>
+                <div className="card p-8 space-y-8">
+                    <h2 className="text-sm font-semibold text-ink mb-2">Source Performance</h2>
                     {analytics.sourcePerformance.length > 0 ? (
                         <SourcePerformance data={analytics.sourcePerformance} />
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-                                <Activity size={32} className="text-muted/20" />
+                            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                <Icon icon="solar:chart-square-linear" width={28} />
                             </div>
-                            <p className="text-[10px] text-muted/40 font-black uppercase tracking-widest">Awaiting Registry Data Stream</p>
+                            <p className="text-xs text-ink-muted font-medium">Awaiting registry data</p>
                         </div>
                     )}
                 </div>
@@ -134,4 +141,4 @@ const AlbertStatus: React.FC = () => {
     )
 }
 
-export default AlbertStatus
+export default AgentPerformance
